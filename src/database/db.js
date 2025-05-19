@@ -79,6 +79,53 @@ class Database {
         });
     }
 
+    // Методы валидации
+    validatePartner(partnerData) {
+        const { name, email, inn, rating } = partnerData;
+
+        if (!name || name.trim() === '') {
+            throw new Error('Имя партнера не может быть пустым');
+        }
+
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            throw new Error('Неверный формат email');
+        }
+
+        if (inn && !/^\d{10}$|^\d{12}$/.test(inn)) {
+            throw new Error('ИНН должен содержать 10 или 12 цифр');
+        }
+
+        if (rating !== undefined && (rating < 0 || rating > 10)) {
+            throw new Error('Рейтинг должен быть от 0 до 10');
+        }
+    }
+
+    validatePartnerProduct(productId, partnerId, quantity, saleDate) {
+        if (!productId) {
+            throw new Error('Не указан продукт');
+        }
+        if (!partnerId) {
+            throw new Error('Не указан партнер');
+        }
+        if (quantity <= 0) {
+            throw new Error('Количество должно быть положительным числом');
+        }
+        if (!saleDate || isNaN(Date.parse(saleDate))) {
+            throw new Error('Некорректная дата продажи');
+        }
+        return Promise.all([
+            this.getQuery('SELECT id FROM partners WHERE id = ?', [partnerId]),
+            this.getQuery('SELECT id FROM products WHERE id = ?', [productId])
+        ]).then(([partner, product]) => {
+            if (!partner) {
+                throw new Error('Партнер не найден');
+            }
+            if (!product) {
+                throw new Error('Продукт не найден');
+            }
+        });
+    }
+
     // Методы для работы с партнерами
     async getPartners() {
         const sql = `
@@ -94,6 +141,7 @@ class Database {
     }
 
     async addPartner(partnerData) {
+        this.validatePartner(partnerData);
         const { type, name, director, email, phone, legal_address, inn, rating } = partnerData;
         const sql = `
             INSERT INTO partners (type, name, director, email, phone, legal_address, inn, rating)
@@ -104,6 +152,7 @@ class Database {
     }
 
     async updatePartner(id, partnerData) {
+        this.validatePartner(partnerData);
         const { type, name, director, email, phone, legal_address, inn, rating } = partnerData;
         const sql = `
             UPDATE partners
@@ -117,6 +166,16 @@ class Database {
     async deletePartner(partnerId) {
         const sql = `DELETE FROM partners WHERE id = ?`;
         const params = [partnerId];
+        return this.runQuery(sql, params);
+    }
+
+    async addPartnerProduct(productId, partnerId, quantity, saleDate) {
+        await this.validatePartnerProduct(productId, partnerId, quantity, saleDate);
+        const sql = `
+            INSERT INTO partner_products (product_id, partner_id, quantity, sale_date)
+            VALUES (?, ?, ?, ?)
+        `;
+        const params = [productId, partnerId, quantity, saleDate];
         return this.runQuery(sql, params);
     }
 
@@ -135,12 +194,14 @@ class Database {
     }
 
     close() {
-        this.db.close((err) => {
-            if (err) {
-                console.error('Error closing the database:', err.message);
-            } else {
-                console.log('Database connection closed.');
-            }
+        return new Promise((resolve, reject) => {
+            this.db.close((err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
         });
     }
 }

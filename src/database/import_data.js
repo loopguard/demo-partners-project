@@ -1,7 +1,6 @@
-const { MaterialType, ProductType, Partner, Product, PartnerProduct } = require('./models');
+const db = require('./db');
 
-// Данные для импорта в базу данных из excel файлов
-// Можно было файлы в прицнипе читать но я так размапил тк их не много
+// Данные для импорта
 const productTypes = [
   { name: "Ламинат", coefficient: 2.35 },
   { name: "Массивная доска", coefficient: 5.15 },
@@ -122,45 +121,46 @@ const partnerProducts = [
   { product: "Инженерная доска Дуб Французская елка однополосная 12 мм", partner: "МонтажПро", quantity: 25000, sale_date: "2024-06-12" }
 ];
 
-// Функция для импорта данных в бд
 async function importAll() {
+  // Очищаем таблицы
+  await db.runQuery('DELETE FROM partner_products');
+  await db.runQuery('DELETE FROM products');
+  await db.runQuery('DELETE FROM partners');
+  await db.runQuery('DELETE FROM product_type');
+  await db.runQuery('DELETE FROM material_type');
+
+  // Импорт product_type
   const productTypeMap = {};
   for (const pt of productTypes) {
-    const id = await ProductType.create(pt.name, pt.coefficient);
-    productTypeMap[pt.name] = id;
+    const res = await db.runQuery('INSERT INTO product_type (name, coefficient) VALUES (?, ?)', [pt.name, pt.coefficient]);
+    productTypeMap[pt.name] = res.lastID;
   }
 
+  // Импорт material_type
   for (const mt of materialTypes) {
-    await MaterialType.create(mt.name, mt.defect_percent);
+    await db.runQuery('INSERT INTO material_type (name, defect_percent) VALUES (?, ?)', [mt.name, mt.defect_percent]);
   }
 
+  // Импорт partners
   const partnerMap = {};
   for (const p of partners) {
-    const id = await Partner.create(p);
-    partnerMap[p.name] = id;
+    const res = await db.addPartner(p);
+    partnerMap[p.name] = res.lastID;
   }
 
+  // Импорт products
   const productMap = {};
   for (const p of products) {
     const product_type_id = productTypeMap[p.product_type];
-    const id = await Product.create({
-      product_type_id,
-      name: p.name,
-      article: p.article,
-      min_partner_price: p.min_partner_price
-    });
-    productMap[p.name] = id;
+    const res = await db.runQuery('INSERT INTO products (product_type_id, name, article, min_partner_price) VALUES (?, ?, ?, ?)', [product_type_id, p.name, p.article, p.min_partner_price]);
+    productMap[p.name] = res.lastID;
   }
 
+  // Импорт partner_products
   for (const pp of partnerProducts) {
     const product_id = productMap[pp.product];
     const partner_id = partnerMap[pp.partner];
-    await PartnerProduct.create({
-      product_id,
-      partner_id,
-      quantity: pp.quantity,
-      sale_date: pp.sale_date
-    });
+    await db.addPartnerProduct(product_id, partner_id, pp.quantity, pp.sale_date);
   }
 
   console.log('Импорт завершён!');

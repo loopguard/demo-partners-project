@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Мастер пол - Система управления</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+            <div class="container-fluid d-flex align-items-center">
+                <img src="assets/logo.png" alt="Логотип" class="app-logo me-3" height="48">
+                <a class="navbar-brand" href="#">Мастер пол</a>
+                <div class="flex-grow-1 text-center">
+                    <h4 class="mb-0" style="color: #000;">Список партнеров</h4>
+                </div>
+                <div>
+                    <button class="btn" id="add-partner-btn" style="background-color: #67BA80; color: white;">Добавить партнера</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid mt-4">
+            <!-- Основной список партнеров -->
+            <div id="partners-list-section" class="section-content">
+                <div class="row" id="partners-list">
+                    <div v-for="partner in partners" :key="partner.id" class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0">{{ partner.type }} - {{ partner.name }}</h5>
+                                    <span class="badge bg-success">{{ calculateDiscount(partner.total_quantity || 0) }}</span>
+                                </div>
+                                <p class="card-text">
+                                    Директор: {{ partner.director }}<br>
+                                    Телефон: {{ partner.phone }}<br>
+                                    Email: {{ partner.email }}<br>
+                                    Юридический адрес: {{ partner.legal_address }}<br>
+                                    ИНН: {{ partner.inn }}<br>
+                                    Всего продаж: {{ partner.total_quantity || 0 }}<br>
+                                    Рейтинг: {{ partner.rating || 0 }}
+                                </p>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-primary flex-grow-1" @click="showEditPartnerForm(partner.id)">
+                                        Редактировать
+                                    </button>
+                                    <button class="btn btn-sm btn-danger flex-grow-1" @click="deletePartner(partner.id)">
+                                        Удалить
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     <div v-if="partners.length === 0 && !loading">
+                        <p>Список партнеров пуст. Добавьте нового партнера.</p>
+                    </div>
+                     <div v-if="loading">
+                        <p>Загрузка партнеров...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Форма добавления/редактирования партнера -->
+            <div id="partner-form-section" class="section-content" style="display: none;">
+                 <div class="d-flex align-items-center mb-3">
+                     <button class="btn btn-secondary btn-sm me-3" id="back-to-partners-list">&larr; Назад</button>
+                    <h2 id="partner-form-title"></h2>
+                 </div>
+                <div class="card">
+                    <div class="card-body">
+                        <form id="partner-form" @submit.prevent="savePartner">
+                            <input type="hidden" id="partner-id">
+                            <div class="mb-3">
+                                <label for="partner-name" class="form-label">Наименование</label>
+                                <input type="text" class="form-control" id="partner-name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="partner-type" class="form-label">Тип партнера</label>
+                                <select class="form-select" id="partner-type" required>
+                                    <option value="">Выберите тип</option>
+                                    <option value="ЗАО">ЗАО</option>
+                                    <option value="ООО">ООО</option>
+                                    <option value="ПАО">ПАО</option>
+                                    <option value="ОАО">ОАО</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="partner-rating" class="form-label">Рейтинг</label>
+                                <input type="number" class="form-control" id="partner-rating" min="0" value="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="partner-director" class="form-label">ФИО директора</label>
+                                <input type="text" class="form-control" id="partner-director" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="partner-phone" class="form-label">Телефон</label>
+                                <input type="tel" class="form-control" id="partner-phone" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="partner-email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="partner-email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="partner-legal-address" class="form-label">Юридический адрес</label>
+                                <textarea class="form-control" id="partner-legal-address" rows="3" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="partner-inn" class="form-label">ИНН</label>
+                                <input type="text" class="form-control" id="partner-inn" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                            <button type="button" class="btn btn-secondary" id="cancel-partner-form">Отмена</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.4.15/dist/vue.global.js"></script>
+    <script src="renderer.js"></script>
+</body>
+</html> 

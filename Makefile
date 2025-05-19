@@ -1,8 +1,12 @@
-.PHONY: install start dev build clean build-mac build-linux
+.PHONY: install start dev build clean build-mac build-linux import-data
 
 # Установка зависимостей
 install:
 	npm install
+
+# Запуск скрипта импорта данных в базу данных
+import-data:
+	node src/database/import_data.js 
 
 # Запуск приложения в production режиме
 start:
@@ -48,4 +52,5 @@ help:
 	@echo "  make build-linux - Сборка приложения для Linux"
 	@echo "  make clean       - Очистка собранных файлов"
 	@echo "  make lint        - Запуск линтера"
-	@echo "  make test        - Запуск тестов" 
+	@echo "  make test        - Запуск тестов"
+	@echo "  make import-data - Запуск скрипта импорта данных в базу данных"

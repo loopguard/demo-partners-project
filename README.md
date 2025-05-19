@@ -29,12 +29,17 @@ make install
 
 ## Запуск приложения
 
+### Импорт данных в бд
+```bash
+import-data
+```
+
 ### Режим разработки
 ```bash
 make dev
 ```
 
-### Production режим
+### Прод режим
 ```bash
 make start
 ```

@@ -27,21 +27,6 @@ h1 {
     color: #2c3e50;
 }
 
-.upload-section {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-input[type="file"] {
-    margin-top: 10px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 100%;
-}
-
 .content-section {
     min-height: 400px;
     background: #fff;
@@ -152,39 +137,6 @@ input[type="file"] {
     margin-bottom: 20px;
     background: #F4E8D3;
     color: #333;
-}
-
-/* Стили для загрузки файлов */
-.file-upload {
-    position: relative;
-    overflow: hidden;
-    margin: 10px 0;
-}
-
-.file-upload input[type="file"] {
-    position: absolute;
-    top: 0;
-    right: 0;
-    min-width: 100%;
-    min-height: 100%;
-    font-size: 100px;
-    text-align: right;
-    filter: alpha(opacity=0);
-    opacity: 0;
-    outline: none;
-    cursor: pointer;
-    display: block;
-}
-
-/* Стили для графиков */
-.chart-container {
-    position: relative;
-    margin: auto;
-    height: 300px;
-    width: 100%;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
 }
 
 /* Адаптивные стили */

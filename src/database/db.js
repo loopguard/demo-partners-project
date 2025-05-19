@@ -88,7 +88,7 @@ class Database {
         }
 
         if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            throw new Error('Неверный формат email');
+            throw new Error('Некорректный формат email');
         }
 
         if (inn && !/^\d{10}$|^\d{12}$/.test(inn)) {

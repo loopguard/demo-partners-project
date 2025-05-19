@@ -1,10 +1,11 @@
+const { describe, expect, test, beforeEach, afterAll } = require('@jest/globals');
 const db = require('../db');
 
 describe('Partner Products Tests', () => {
     beforeEach(async () => {
-        await db.runQuery('DELETE FROM partners');
-        await db.runQuery('DELETE FROM products');
         await db.runQuery('DELETE FROM partner_products');
+        await db.runQuery('DELETE FROM products');
+        await db.runQuery('DELETE FROM partners');
     });
 
     afterAll(async () => {
